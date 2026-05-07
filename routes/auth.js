@@ -113,5 +113,4 @@ router.post('/change-password', requireAuth, async (req, res) => {
   if (error) return res.status(500).json({ error: error.message });
   res.json({ message: 'Password updated successfully' });
 });
-
 module.exports = router;
