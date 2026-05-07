@@ -2,10 +2,10 @@ const express = require('express');
 const router  = express.Router();
 const { supabase, requireAuth } = require('../supabase');
 
-const ALLOWED_DOMAIN = process.env.ALLOWED_EMAIL_DOMAIN || 'uba.co.mz';
+const ALLOWED_DOMAIN = process.env.ALLOWED_EMAIL_DOMAIN || 'ubagroup.com';
 
 // POST /auth/magic-link
-// Body: { email: "user@uba.co.mz" }
+// Body: { email: "user@ubagroup.com" }
 // Sends a magic link email via Supabase Auth
 router.post('/magic-link', async (req, res) => {
   const { email } = req.body;
@@ -25,7 +25,7 @@ router.post('/magic-link', async (req, res) => {
     email,
     options: {
       shouldCreateUser: true,
-      emailRedirectTo: process.env.FRONTEND_URL || 'http://localhost:3000'
+      emailRedirectTo: process.env.FRONTEND_URL || 'https://uba-api-tracker-front-end.rodriguesjmunguambe.workers.dev'
     }
   });
 
