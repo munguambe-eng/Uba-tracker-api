@@ -29,7 +29,8 @@ router.post('/register', async (req, res) => {
     user_metadata: { name }
   });
 
-  if (error) {
+ if (error) {
+    console.error('Supabase register error:', JSON.stringify(error));
     if (error.message.includes('already registered')) {
       return res.status(409).json({ error: 'An account with this email already exists' });
     }
