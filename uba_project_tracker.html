@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UBA Data — Project Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0f0f0f;--ink2:#4a4a4a;--ink3:#8a8a8a;--ink4:#c0c0c0;
+  --bg:#fafaf8;--surface:#ffffff;--surface2:#f4f3ef;
+  --border:#e8e6e0;--border2:#d0cec8;
+  --green:#1D9E75;--green-bg:#E1F5EE;--green-text:#085041;
+  --amber:#BA7517;--amber-bg:#FAEEDA;--amber-text:#633806;
+  --red:#A32D2D;--red-bg:#FCEBEB;--red-text:#791F1F;
+  --blue:#185FA5;--blue-bg:#E6F1FB;--blue-text:#0C447C;
+  --gray-bg:#F1EFE8;--gray-text:#5F5E5A;
+  --accent:#0f0f0f;
+  --r:8px;--rl:12px;
+  font-size:15px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+h1,h2,h3{font-family:'DM Serif Display',serif;font-weight:400}
+
+/* ── APP SHELL ── */
+#app{display:none}
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)}
+
+/* ── LOGIN ── */
+.login-wrap{width:380px}
+.login-logo{font-family:'DM Serif Display',serif;font-size:28px;color:var(--ink);margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--ink3);margin-bottom:2rem}
+.login-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rl);padding:1.75rem}
+.login-card h3{font-size:16px;font-family:'DM Sans',sans-serif;font-weight:500;margin-bottom:1.25rem;color:var(--ink)}
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:5px;letter-spacing:.02em}
+.form-group input{width:100%;border:0.5px solid var(--border2);border-radius:var(--r);padding:9px 12px;font-size:14px;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink);outline:none;transition:border-color .15s}
+.form-group input:focus{border-color:var(--ink)}
+.btn-primary{width:100%;background:var(--ink);color:#fff;border:none;border-radius:var(--r);padding:10px;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;transition:opacity .15s}
+.btn-primary:hover{opacity:.85}
+.login-hint{font-size:12px;color:var(--ink3);margin-top:1rem;text-align:center}
+.login-users{display:flex;gap:8px;flex-wrap:wrap;margin-top:.75rem;justify-content:center}
+.login-user-btn{font-size:12px;font-family:'DM Sans',sans-serif;background:var(--surface2);border:0.5px solid var(--border);border-radius:20px;padding:4px 12px;cursor:pointer;color:var(--ink2)}
+.login-user-btn:hover{background:var(--border)}
+.error-msg{font-size:12px;color:var(--red);margin-top:.5rem;text-align:center}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+.sidebar{background:var(--surface);border-right:0.5px solid var(--border);padding:1.5rem 1rem;display:flex;flex-direction:column;gap:4px}
+.sidebar-logo{font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);padding:.5rem .75rem;margin-bottom:.5rem}
+.sidebar-logo span{display:block;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--ink3);font-weight:400;margin-top:1px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--r);font-size:13px;color:var(--ink2);cursor:pointer;transition:background .1s;border:none;background:transparent;width:100%;text-align:left;font-family:'DM Sans',sans-serif}
+.nav-item:hover{background:var(--surface2)}
+.nav-item.active{background:var(--surface2);color:var(--ink);font-weight:500}
+.nav-icon{width:16px;height:16px;flex-shrink:0}
+.sidebar-bottom{margin-top:auto;padding-top:1rem;border-top:0.5px solid var(--border)}
+.user-row{display:flex;align-items:center;gap:10px;padding:.5rem .25rem}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0}
+.user-name{font-size:13px;font-weight:500;color:var(--ink)}
+.user-role{font-size:11px;color:var(--ink3)}
+.logout-btn{font-size:12px;color:var(--ink3);background:transparent;border:none;cursor:pointer;padding:4px 0;font-family:'DM Sans',sans-serif}
+.logout-btn:hover{color:var(--ink)}
+
+/* ── MAIN ── */
+.main{padding:2rem;overflow-y:auto}
+.page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem}
+.page-title{font-size:24px;color:var(--ink)}
+.page-sub{font-size:13px;color:var(--ink3);margin-top:4px}
+.btn-add{background:var(--ink);color:#fff;border:none;border-radius:var(--r);padding:9px 16px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px}
+.btn-add:hover{opacity:.85}
+
+/* ── STAT CARDS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem}
+.stat-card{background:var(--surface2);border-radius:var(--r);padding:1rem;border:0.5px solid var(--border)}
+.stat-label{font-size:11px;color:var(--ink3);font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px}
+.stat-value{font-size:26px;font-family:'DM Serif Display',serif;color:var(--ink)}
+.stat-note{font-size:11px;color:var(--ink3);margin-top:3px}
+
+/* ── PROJECT CARDS ── */
+.projects-grid{display:flex;flex-direction:column;gap:10px}
+.project-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rl);padding:1.25rem;cursor:pointer;transition:border-color .15s}
+.project-card:hover{border-color:var(--border2)}
+.project-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem}
+.project-card-name{font-size:15px;font-weight:500;color:var(--ink)}
+.project-card-owner{font-size:12px;color:var(--ink3);margin-top:2px}
+.card-actions{display:flex;gap:6px;align-items:center}
+.badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px}
+.badge-on-track{background:var(--green-bg);color:var(--green-text)}
+.badge-at-risk{background:var(--amber-bg);color:var(--amber-text)}
+.badge-blocked{background:var(--red-bg);color:var(--red-text)}
+.badge-completed{background:var(--green-bg);color:var(--green-text)}
+.badge-on-hold{background:var(--gray-bg);color:var(--gray-text)}
+.project-card-meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;font-size:12px;color:var(--ink3);margin-bottom:.75rem}
+.meta-item strong{display:block;font-size:13px;color:var(--ink);font-weight:500;margin-bottom:1px}
+.progress-bar-wrap{height:3px;background:var(--surface2);border-radius:2px;overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s}
+.progress-fill.risk{background:var(--amber)}
+.progress-fill.danger{background:var(--red)}
+.project-card-comment{font-size:13px;color:var(--ink2);border-top:0.5px solid var(--border);padding-top:.75rem;margin-top:.75rem;line-height:1.6}
+.icon-btn{background:transparent;border:0.5px solid var(--border);border-radius:var(--r);padding:5px 8px;cursor:pointer;font-size:12px;color:var(--ink3);font-family:'DM Sans',sans-serif}
+.icon-btn:hover{background:var(--surface2);color:var(--ink)}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;align-items:flex-start;justify-content:center;padding:2rem 1rem;background:rgba(15,15,15,.45);min-height:100vh}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--rl);border:0.5px solid var(--border);width:100%;max-width:640px;padding:1.75rem}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
+.modal-title{font-size:20px;color:var(--ink)}
+.modal-close{background:transparent;border:none;font-size:20px;cursor:pointer;color:var(--ink3);line-height:1;padding:4px}
+.modal-close:hover{color:var(--ink)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:.75rem}
+.form-row.full{grid-template-columns:1fr}
+.fg label{display:block;font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:5px}
+.fg input,.fg select,.fg textarea{width:100%;border:0.5px solid var(--border2);border-radius:var(--r);padding:8px 10px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink);outline:none;resize:vertical}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--ink)}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:1.25rem;padding-top:1rem;border-top:0.5px solid var(--border)}
+.btn-secondary{background:transparent;border:0.5px solid var(--border2);border-radius:var(--r);padding:8px 16px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--ink2)}
+.btn-secondary:hover{background:var(--surface2)}
+.btn-danger{background:var(--red-bg);border:0.5px solid var(--red-bg);border-radius:var(--r);padding:8px 16px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--red-text)}
+.bottleneck-list{display:flex;flex-direction:column;gap:6px;margin-bottom:6px}
+.b-row{display:flex;gap:6px;align-items:center}
+.b-row input{flex:1}
+.b-remove{background:transparent;border:none;cursor:pointer;color:var(--ink3);font-size:16px;line-height:1;padding:2px 4px}
+.b-remove:hover{color:var(--red)}
+.btn-ghost{background:transparent;border:0.5px dashed var(--border2);border-radius:var(--r);padding:6px 12px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--ink3);width:100%}
+.btn-ghost:hover{background:var(--surface2)}
+
+/* ── DETAIL VIEW ── */
+.detail-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:1.5rem}
+.back-btn{background:transparent;border:0.5px solid var(--border);border-radius:var(--r);padding:7px 12px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--ink2);white-space:nowrap}
+.back-btn:hover{background:var(--surface2)}
+.detail-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rl);padding:1.5rem;margin-bottom:1rem}
+.detail-section-title{font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:.75rem}
+.detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1rem}
+.detail-item label{font-size:11px;color:var(--ink3);display:block;margin-bottom:3px}
+.detail-item span{font-size:14px;color:var(--ink);font-weight:500}
+.update-item{border-left:2px solid var(--border);padding-left:1rem;margin-bottom:1rem}
+.update-date{font-size:11px;color:var(--ink3);margin-bottom:4px}
+.update-comment{font-size:13px;color:var(--ink);line-height:1.6;margin-bottom:6px}
+.update-tags{display:flex;gap:6px;flex-wrap:wrap}
+
+/* ── REPORT VIEW ── */
+.report-controls{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rl);padding:1.25rem;margin-bottom:1.5rem;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.report-controls .fg{min-width:140px}
+.btn-export{background:var(--ink);color:#fff;border:none;border-radius:var(--r);padding:9px 16px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer}
+.btn-export:hover{opacity:.85}
+.report-preview{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rl);padding:2rem}
+
+/* ── PRINT ── */
+@media print{
+  .sidebar,.report-controls,.btn-export,.back-btn,.icon-btn,.btn-add,.card-actions,.modal-overlay,.page-header button{display:none!important}
+  .layout{grid-template-columns:1fr}
+  .report-preview{border:none;padding:0}
+  body{background:#fff}
+  .main{padding:.5rem}
+}
+
+/* ── REPORT DOC STYLES ── */
+.report-doc{font-family:'DM Sans',sans-serif;color:#0f0f0f;max-width:720px;margin:0 auto}
+.report-doc .r-header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:1.5rem;margin-bottom:1.5rem;border-bottom:2px solid #0f0f0f}
+.report-doc .r-org{font-family:'DM Serif Display',serif;font-size:22px}
+.report-doc .r-title{font-size:13px;color:#4a4a4a;margin-top:2px}
+.report-doc .r-meta{text-align:right;font-size:12px;color:#4a4a4a;line-height:1.8}
+.report-doc h2{font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:1rem;margin-top:1.5rem}
+.report-doc .r-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem}
+.report-doc .r-stat{background:#f4f3ef;border-radius:8px;padding:.75rem 1rem}
+.report-doc .r-stat-val{font-size:22px;font-family:'DM Serif Display',serif;color:#0f0f0f}
+.report-doc .r-stat-lbl{font-size:11px;color:#8a8a8a;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.report-doc .r-project{border:0.5px solid #e8e6e0;border-radius:10px;padding:1.25rem;margin-bottom:.75rem}
+.report-doc .r-proj-name{font-size:15px;font-weight:500;margin-bottom:.5rem}
+.report-doc .r-proj-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:12px;color:#4a4a4a;margin-bottom:.5rem}
+.report-doc .r-proj-row span{display:block;font-size:13px;color:#0f0f0f;font-weight:500;margin-top:1px}
+.report-doc .r-prog{height:4px;background:#e8e6e0;border-radius:2px;overflow:hidden;margin:.5rem 0}
+.report-doc .r-prog-fill{height:100%;background:#1D9E75;border-radius:2px}
+.report-doc .r-block{background:#FAEEDA;border-radius:6px;padding:.5rem .75rem;font-size:12px;color:#633806;margin-top:.5rem}
+.report-doc .r-footer{margin-top:2rem;padding-top:1rem;border-top:0.5px solid #e8e6e0;font-size:11px;color:#8a8a8a;display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-logo">UBA Data</div>
+    <div class="login-sub">Project Tracker — Data Science Division</div>
+    <div class="login-card">
+      <h3>Sign in</h3>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="you@uba.co.mz">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="••••••••">
+      </div>
+      <button class="btn-primary" onclick="doLogin()">Sign in</button>
+      <div class="error-msg" id="login-error"></div>
+    </div>
+    <div class="login-hint">Demo accounts — click to fill:</div>
+    <div class="login-users">
+      <button class="login-user-btn" onclick="fillUser('ana.silva@uba.co.mz','pass123')">Ana Silva (DS)</button>
+      <button class="login-user-btn" onclick="fillUser('carlos.neves@uba.co.mz','pass123')">Carlos Neves (DS)</button>
+      <button class="login-user-btn" onclick="fillUser('head.data@uba.co.mz','admin123')">Head of Data</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-logo">UBA Data<span>Project Tracker</span></div>
+      <button class="nav-item active" id="nav-dashboard" onclick="showView('dashboard')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".7"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".7"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".7"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".3"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" id="nav-projects" onclick="showView('projects')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="2" rx="1" fill="currentColor" opacity=".7"/><rect x="1" y="7" width="14" height="2" rx="1" fill="currentColor" opacity=".7"/><rect x="1" y="11" width="9" height="2" rx="1" fill="currentColor" opacity=".4"/></svg>
+        Projects
+      </button>
+      <button class="nav-item" id="nav-report" onclick="showView('report')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="2" y="1" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.2" opacity=".7"/><rect x="5" y="5" width="6" height="1.2" rx=".6" fill="currentColor" opacity=".5"/><rect x="5" y="8" width="6" height="1.2" rx=".6" fill="currentColor" opacity=".5"/><rect x="5" y="11" width="4" height="1.2" rx=".6" fill="currentColor" opacity=".3"/></svg>
+        Executive report
+      </button>
+      <div class="sidebar-bottom">
+        <div class="user-row">
+          <div class="avatar" id="sidebar-avatar">AS</div>
+          <div>
+            <div class="user-name" id="sidebar-name">Ana Silva</div>
+            <div class="user-role" id="sidebar-role">Data Scientist</div>
+          </div>
+        </div>
+        <button class="logout-btn" onclick="doLogout()">Sign out</button>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main" id="main-content"></div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-title">Add project</h2>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+const USERS = {
+  'ana.silva@uba.co.mz':     {password:'pass123', name:'Ana Silva',    role:'Data Scientist',    initials:'AS'},
+  'carlos.neves@uba.co.mz':  {password:'pass123', name:'Carlos Neves', role:'Data Scientist',    initials:'CN'},
+  'head.data@uba.co.mz':     {password:'admin123',name:'Sofia Matos',  role:'Head of Data',      initials:'SM'},
+};
+
+const STATUS_LABELS = {'on-track':'On track','at-risk':'At risk','blocked':'Blocked','completed':'Completed','on-hold':'On hold'};
+const STATUS_CLASS  = {'on-track':'badge-on-track','at-risk':'badge-at-risk','blocked':'badge-blocked','completed':'badge-completed','on-hold':'badge-on-hold'};
+const FILL_CLASS    = {'on-track':'','at-risk':'risk','blocked':'danger','completed':'','on-hold':''};
+
+let currentUser = null;
+let currentView = 'dashboard';
+let editingId   = null;
+
+function getProjects(){return JSON.parse(localStorage.getItem('uba_projects')||'[]')}
+function saveProjects(p){localStorage.setItem('uba_projects',JSON.stringify(p))}
+
+function initSampleData(){
+  if(getProjects().length>0) return;
+  const sample=[
+    {id:1,name:'Credit scoring model v2',owner:'Ana Silva',status:'on-track',progress:65,timeline:'May 23, 2026',doc:'GitHub: uba-credit-v2',bottlenecks:['Waiting for cleaned loan data from IT'],comment:'Feature engineering complete. Moving to validation next week.',createdBy:'ana.silva@uba.co.mz',updates:[{date:'2026-04-30',progress:40,status:'on-track',comment:'EDA and baseline model done.',bottlenecks:[]},{date:'2026-05-07',progress:65,status:'on-track',comment:'Feature engineering complete.',bottlenecks:['Waiting for cleaned loan data from IT']}]},
+    {id:2,name:'Customer churn prediction',owner:'Carlos Neves',status:'at-risk',progress:30,timeline:'Jun 06, 2026',doc:'Confluence: uba-churn-v1',bottlenecks:['Data pipeline blocked since last Tuesday','Missing compliance approval'],comment:'Pipeline blocked — escalated to IT. Need compliance sign-off.',createdBy:'carlos.neves@uba.co.mz',updates:[{date:'2026-04-23',progress:15,status:'on-track',comment:'Kickoff and data discovery done.',bottlenecks:[]},{date:'2026-05-07',progress:30,status:'at-risk',comment:'Pipeline blocked.',bottlenecks:['Data pipeline blocked since last Tuesday','Missing compliance approval']}]},
+    {id:3,name:'Fraud detection dashboard',owner:'Ana Silva',status:'completed',progress:100,timeline:'Apr 30, 2026',doc:'GitHub: uba-fraud-dashboard',bottlenecks:[],comment:'Deployed to production on Apr 29. Monitoring live.',createdBy:'ana.silva@uba.co.mz',updates:[{date:'2026-04-30',progress:100,status:'completed',comment:'Deployed to production.',bottlenecks:[]}]},
+    {id:4,name:'Branch performance analytics',owner:'Carlos Neves',status:'on-hold',progress:10,timeline:'Jul 15, 2026',doc:'',bottlenecks:['Pending budget approval from management'],comment:'On hold pending Q2 budget review.',createdBy:'carlos.neves@uba.co.mz',updates:[{date:'2026-05-01',progress:10,status:'on-hold',comment:'On hold pending Q2 budget.',bottlenecks:['Pending budget approval']}]}
+  ];
+  saveProjects(sample);
+}
+
+function fillUser(email,pw){
+  document.getElementById('login-email').value=email;
+  document.getElementById('login-password').value=pw;
+}
+
+function doLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pw=document.getElementById('login-password').value;
+  const u=USERS[email];
+  if(!u||u.password!==pw){
+    document.getElementById('login-error').textContent='Invalid email or password.';
+    return;
+  }
+  currentUser={email,...u};
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('sidebar-name').textContent=u.name;
+  document.getElementById('sidebar-role').textContent=u.role;
+  document.getElementById('sidebar-avatar').textContent=u.initials;
+  initSampleData();
+  showView('dashboard');
+}
+
+function doLogout(){
+  currentUser=null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('login-email').value='';
+  document.getElementById('login-password').value='';
+  document.getElementById('login-error').textContent='';
+}
+
+function showView(v){
+  currentView=v;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const el=document.getElementById('nav-'+v);
+  if(el) el.classList.add('active');
+  const mc=document.getElementById('main-content');
+  if(v==='dashboard') mc.innerHTML=renderDashboard();
+  else if(v==='projects') mc.innerHTML=renderProjects();
+  else if(v==='report') mc.innerHTML=renderReportView();
+}
+
+function renderDashboard(){
+  const projects=getProjects();
+  const total=projects.length;
+  const onTrack=projects.filter(p=>p.status==='on-track').length;
+  const blocked=projects.filter(p=>p.status==='blocked'||p.status==='at-risk').length;
+  const completed=projects.filter(p=>p.status==='completed').length;
+  const avgProg=total?Math.round(projects.reduce((a,p)=>a+p.progress,0)/total):0;
+  return `
+    <div class="page-header">
+      <div><h1 class="page-title">Dashboard</h1><div class="page-sub">Week of ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</div></div>
+      <button class="btn-add" onclick="openAddModal()"><span style="font-size:18px;line-height:1">+</span> New project</button>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Total projects</div><div class="stat-value">${total}</div></div>
+      <div class="stat-card"><div class="stat-label">On track</div><div class="stat-value" style="color:#1D9E75">${onTrack}</div></div>
+      <div class="stat-card"><div class="stat-label">At risk / blocked</div><div class="stat-value" style="color:#BA7517">${blocked}</div></div>
+      <div class="stat-card"><div class="stat-label">Avg progress</div><div class="stat-value">${avgProg}%</div></div>
+    </div>
+    <div class="projects-grid">${projects.map(p=>projectCard(p)).join('')}</div>`;
+}
+
+function renderProjects(){
+  const projects=getProjects();
+  const myProjects=currentUser.role==='Head of Data'?projects:projects.filter(p=>p.createdBy===currentUser.email);
+  return `
+    <div class="page-header">
+      <div><h1 class="page-title">My projects</h1><div class="page-sub">${myProjects.length} project${myProjects.length!==1?'s':''}</div></div>
+      <button class="btn-add" onclick="openAddModal()"><span style="font-size:18px;line-height:1">+</span> New project</button>
+    </div>
+    <div class="projects-grid">${myProjects.length?myProjects.map(p=>projectCard(p)).join(''):'<div style="color:var(--ink3);font-size:14px;padding:2rem 0">No projects yet. Add your first one.</div>'}</div>`;
+}
+
+function projectCard(p){
+  const fillCls=FILL_CLASS[p.status];
+  return `<div class="project-card" onclick="openDetail(${p.id})">
+    <div class="project-card-header">
+      <div>
+        <div class="project-card-name">${p.name}</div>
+        <div class="project-card-owner">${p.owner}</div>
+      </div>
+      <div class="card-actions" onclick="event.stopPropagation()">
+        <span class="badge ${STATUS_CLASS[p.status]}">${STATUS_LABELS[p.status]}</span>
+        <button class="icon-btn" onclick="openEditModal(${p.id})">Edit</button>
+        <button class="icon-btn" onclick="openUpdateModal(${p.id})">Update</button>
+      </div>
+    </div>
+    <div class="project-card-meta">
+      <div class="meta-item"><strong>${p.progress}%</strong>Progress</div>
+      <div class="meta-item"><strong>${p.timeline||'—'}</strong>Deadline</div>
+      <div class="meta-item"><strong>${p.doc?'Yes':'—'}</strong>Documentation</div>
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-fill ${fillCls}" style="width:${p.progress}%"></div></div>
+    ${p.comment?`<div class="project-card-comment">${p.comment}</div>`:''}
+  </div>`;
+}
+
+function openDetail(id){
+  const p=getProjects().find(x=>x.id===id);
+  if(!p) return;
+  const mc=document.getElementById('main-content');
+  mc.innerHTML=`
+    <div class="detail-header">
+      <button class="back-btn" onclick="showView('${currentView}')">← Back</button>
+      <div style="flex:1">
+        <h1 class="page-title">${p.name}</h1>
+        <div class="page-sub">${p.owner} · ${STATUS_LABELS[p.status]}</div>
+      </div>
+      <button class="btn-add" onclick="openUpdateModal(${p.id})">+ Post update</button>
+    </div>
+    <div class="detail-card">
+      <div class="detail-section-title">Overview</div>
+      <div class="detail-grid">
+        <div class="detail-item"><label>Status</label><span><span class="badge ${STATUS_CLASS[p.status]}">${STATUS_LABELS[p.status]}</span></span></div>
+        <div class="detail-item"><label>Progress</label><span>${p.progress}%</span></div>
+        <div class="detail-item"><label>Owner</label><span>${p.owner}</span></div>
+        <div class="detail-item"><label>Deadline</label><span>${p.timeline||'—'}</span></div>
+        <div class="detail-item"><label>Documentation</label><span>${p.doc||'—'}</span></div>
+      </div>
+      <div class="progress-bar-wrap" style="height:5px"><div class="progress-fill ${FILL_CLASS[p.status]}" style="width:${p.progress}%"></div></div>
+    </div>
+    ${p.bottlenecks&&p.bottlenecks.filter(b=>b).length?`
+    <div class="detail-card">
+      <div class="detail-section-title">Bottlenecks & blockers</div>
+      ${p.bottlenecks.filter(b=>b).map(b=>`<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px"><div style="width:8px;height:8px;border-radius:50%;background:var(--amber);flex-shrink:0;margin-top:5px"></div><div style="font-size:13px;color:var(--ink)">${b}</div></div>`).join('')}
+    </div>`:''}
+    <div class="detail-card">
+      <div class="detail-section-title">Update history</div>
+      ${[...(p.updates||[])].reverse().map(u=>`
+        <div class="update-item">
+          <div class="update-date">${u.date}</div>
+          <div class="update-comment">${u.comment}</div>
+          <div class="update-tags">
+            <span class="badge ${STATUS_CLASS[u.status]}" style="font-size:10px">${STATUS_LABELS[u.status]}</span>
+            <span style="font-size:11px;color:var(--ink3);align-self:center">${u.progress}% complete</span>
+          </div>
+          ${u.bottlenecks&&u.bottlenecks.filter(b=>b).length?`<div style="margin-top:6px;font-size:12px;color:var(--amber-text);background:var(--amber-bg);border-radius:6px;padding:5px 10px">Blockers: ${u.bottlenecks.filter(b=>b).join('; ')}</div>`:''}
+        </div>`).join('')}
+    </div>`;
+}
+
+function openAddModal(){
+  editingId=null;
+  document.getElementById('modal-title').textContent='Add project';
+  document.getElementById('modal-body').innerHTML=projectForm(null);
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function openEditModal(id){
+  const p=getProjects().find(x=>x.id===id);
+  editingId=id;
+  document.getElementById('modal-title').textContent='Edit project';
+  document.getElementById('modal-body').innerHTML=projectForm(p);
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function openUpdateModal(id){
+  const p=getProjects().find(x=>x.id===id);
+  editingId=id;
+  document.getElementById('modal-title').textContent='Post update — '+p.name;
+  document.getElementById('modal-body').innerHTML=updateForm(p);
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');editingId=null}
+
+function projectForm(p){
+  const blist=(p&&p.bottlenecks&&p.bottlenecks.length?p.bottlenecks:['']);
+  return `
+    <div class="form-row"><div class="fg"><label>Project name</label><input id="f-name" value="${p?p.name:''}" placeholder="e.g. Credit scoring model v2"></div>
+    <div class="fg"><label>Owner</label><input id="f-owner" value="${p?p.owner:currentUser.name}" placeholder="Full name"></div></div>
+    <div class="form-row"><div class="fg"><label>Status</label><select id="f-status">${Object.entries(STATUS_LABELS).map(([k,v])=>`<option value="${k}"${p&&p.status===k?' selected':''}>${v}</option>`).join('')}</select></div>
+    <div class="fg"><label>Progress (%)</label><input id="f-progress" type="number" min="0" max="100" value="${p?p.progress:0}"></div></div>
+    <div class="form-row"><div class="fg"><label>Expected delivery</label><input id="f-timeline" value="${p?p.timeline:''}" placeholder="e.g. Jun 06, 2026"></div>
+    <div class="fg"><label>Documentation / links</label><input id="f-doc" value="${p?p.doc:''}" placeholder="GitHub, Confluence, Jira..."></div></div>
+    <div class="form-row full"><div class="fg"><label>Bottlenecks & blockers</label>
+      <div id="b-list">${blist.map((b,i)=>`<div class="b-row"><input value="${b}" placeholder="Describe blocker..." id="b-${i}"><button class="b-remove" onclick="removeBottleneck(${i})" type="button">×</button></div>`).join('')}</div>
+      <button class="btn-ghost" type="button" onclick="addBottleneck()">+ add bottleneck</button>
+    </div></div>
+    <div class="form-row full"><div class="fg"><label>Comments & next steps</label><textarea id="f-comment" rows="3" placeholder="Key updates, decisions, next week's plan...">${p?p.comment:''}</textarea></div></div>
+    <div class="modal-actions">
+      ${p?`<button class="btn-danger" onclick="deleteProject(${p.id})">Delete</button>`:''}
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" style="width:auto;padding:8px 20px" onclick="saveProject()">Save project</button>
+    </div>`;
+}
+
+function updateForm(p){
+  return `
+    <div class="form-row"><div class="fg"><label>Status</label><select id="f-status">${Object.entries(STATUS_LABELS).map(([k,v])=>`<option value="${k}"${p.status===k?' selected':''}>${v}</option>`).join('')}</select></div>
+    <div class="fg"><label>Progress (%)</label><input id="f-progress" type="number" min="0" max="100" value="${p.progress}"></div></div>
+    <div class="form-row full"><div class="fg"><label>Bottlenecks this week</label>
+      <div id="b-list"><div class="b-row"><input value="" placeholder="Describe any blockers..." id="b-0"><button class="b-remove" onclick="removeBottleneck(0)" type="button">×</button></div></div>
+      <button class="btn-ghost" type="button" onclick="addBottleneck()">+ add bottleneck</button>
+    </div></div>
+    <div class="form-row full"><div class="fg"><label>Update note</label><textarea id="f-comment" rows="3" placeholder="What happened this week? What's next?"></textarea></div></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" style="width:auto;padding:8px 20px" onclick="postUpdate()">Post update</button>
+    </div>`;
+}
+
+function getBotList(){
+  const bl=document.getElementById('b-list');
+  if(!bl) return [];
+  return Array.from(bl.querySelectorAll('input')).map(i=>i.value.trim()).filter(v=>v);
+}
+
+function addBottleneck(){
+  const bl=document.getElementById('b-list');
+  const i=bl.children.length;
+  const div=document.createElement('div');div.className='b-row';div.id='brow-'+i;
+  div.innerHTML=`<input placeholder="Describe blocker..." id="b-${i}"><button class="b-remove" onclick="removeBottleneck(${i})" type="button">×</button>`;
+  bl.appendChild(div);
+}
+
+function removeBottleneck(i){
+  const row=document.getElementById('brow-'+i)||document.querySelectorAll('.b-row')[i];
+  if(row) row.remove();
+}
+
+function saveProject(){
+  const name=document.getElementById('f-name').value.trim();
+  if(!name){alert('Project name is required.');return;}
+  const projects=getProjects();
+  const data={
+    name,owner:document.getElementById('f-owner').value.trim()||currentUser.name,
+    status:document.getElementById('f-status').value,
+    progress:Math.min(100,Math.max(0,parseInt(document.getElementById('f-progress').value)||0)),
+    timeline:document.getElementById('f-timeline').value.trim(),
+    doc:document.getElementById('f-doc').value.trim(),
+    bottlenecks:getBotList(),
+    comment:document.getElementById('f-comment').value.trim(),
+  };
+  if(editingId){
+    const idx=projects.findIndex(p=>p.id===editingId);
+    if(idx>-1){const upd=projects[idx].updates||[];projects[idx]={...projects[idx],...data,updates:upd};}
+  } else {
+    data.id=Date.now();data.createdBy=currentUser.email;data.updates=[];
+    const today=new Date().toISOString().split('T')[0];
+    data.updates.push({date:today,progress:data.progress,status:data.status,comment:data.comment||'Project created.',bottlenecks:data.bottlenecks});
+    projects.push(data);
+  }
+  saveProjects(projects);closeModal();showView(currentView);
+}
+
+function postUpdate(){
+  const projects=getProjects();
+  const idx=projects.findIndex(p=>p.id===editingId);
+  if(idx<0) return;
+  const today=new Date().toISOString().split('T')[0];
+  const update={date:today,progress:Math.min(100,Math.max(0,parseInt(document.getElementById('f-progress').value)||0)),status:document.getElementById('f-status').value,comment:document.getElementById('f-comment').value.trim(),bottlenecks:getBotList()};
+  projects[idx].status=update.status;projects[idx].progress=update.progress;
+  projects[idx].comment=update.comment;projects[idx].bottlenecks=update.bottlenecks;
+  if(!projects[idx].updates) projects[idx].updates=[];
+  projects[idx].updates.push(update);
+  saveProjects(projects);closeModal();showView(currentView);
+}
+
+function deleteProject(id){
+  if(!confirm('Delete this project? This cannot be undone.')) return;
+  const projects=getProjects().filter(p=>p.id!==id);
+  saveProjects(projects);closeModal();showView(currentView);
+}
+
+function renderReportView(){
+  return `
+    <div class="page-header">
+      <div><h1 class="page-title">Executive report</h1><div class="page-sub">Generate a presentation-ready summary</div></div>
+    </div>
+    <div class="report-controls">
+      <div class="fg"><label style="display:block;font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:5px">Reporting period</label><input id="r-period" type="text" value="Week of ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}" style="width:200px"></div>
+      <div class="fg"><label style="display:block;font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:5px">Prepared by</label><input id="r-author" type="text" value="${currentUser.name}" style="width:160px"></div>
+      <div class="fg"><label style="display:block;font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:5px">Filter status</label><select id="r-filter" style="width:140px"><option value="all">All projects</option><option value="on-track">On track</option><option value="at-risk">At risk</option><option value="blocked">Blocked</option><option value="completed">Completed</option></select></div>
+      <button class="btn-export" onclick="renderReport()">Preview report</button>
+      <button class="btn-export" style="background:var(--green)" onclick="printReport()">Export / print</button>
+    </div>
+    <div class="report-preview" id="report-preview"><div style="color:var(--ink3);font-size:14px">Click "Preview report" to generate.</div></div>`;
+}
+
+function renderReport(){
+  const period=document.getElementById('r-period').value;
+  const author=document.getElementById('r-author').value;
+  const filter=document.getElementById('r-filter').value;
+  let projects=getProjects();
+  if(filter!=='all') projects=projects.filter(p=>p.status===filter);
+  const total=getProjects().length;
+  const onTrack=getProjects().filter(p=>p.status==='on-track').length;
+  const atRisk=getProjects().filter(p=>p.status==='at-risk'||p.status==='blocked').length;
+  const completed=getProjects().filter(p=>p.status==='completed').length;
+  const avgProg=total?Math.round(getProjects().reduce((a,p)=>a+p.progress,0)/total):0;
+  const allBlocked=projects.filter(p=>p.bottlenecks&&p.bottlenecks.filter(b=>b).length>0);
+
+  document.getElementById('report-preview').innerHTML=`
+  <div class="report-doc" id="printable-report">
+    <div class="r-header">
+      <div>
+        <div class="r-org">UBA Group — Data Science</div>
+        <div class="r-title">Weekly project status report</div>
+      </div>
+      <div class="r-meta">
+        <div>${period}</div>
+        <div>Prepared by: ${author}</div>
+        <div>Presented to: Head of Data / Executive Management</div>
+      </div>
+    </div>
+
+    <h2>Portfolio summary</h2>
+    <div class="r-summary-grid">
+      <div class="r-stat"><div class="r-stat-val">${total}</div><div class="r-stat-lbl">Total projects</div></div>
+      <div class="r-stat"><div class="r-stat-val" style="color:#1D9E75">${onTrack}</div><div class="r-stat-lbl">On track</div></div>
+      <div class="r-stat"><div class="r-stat-val" style="color:#BA7517">${atRisk}</div><div class="r-stat-lbl">At risk / blocked</div></div>
+      <div class="r-stat"><div class="r-stat-val">${avgProg}%</div><div class="r-stat-lbl">Avg progress</div></div>
+    </div>
+
+    <h2>Project status</h2>
+    ${projects.map(p=>`
+      <div class="r-project">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+          <div class="r-proj-name">${p.name}</div>
+          <span class="badge ${STATUS_CLASS[p.status]}">${STATUS_LABELS[p.status]}</span>
+        </div>
+        <div class="r-proj-row">
+          <div>Owner<span>${p.owner}</span></div>
+          <div>Deadline<span>${p.timeline||'—'}</span></div>
+          <div>Progress<span>${p.progress}%</span></div>
+        </div>
+        <div class="r-prog"><div class="r-prog-fill" style="width:${p.progress}%;background:${p.status==='at-risk'?'#BA7517':p.status==='blocked'?'#A32D2D':'#1D9E75'}"></div></div>
+        ${p.doc?`<div style="font-size:12px;color:#4a4a4a;margin-top:4px">Docs: ${p.doc}</div>`:''}
+        ${p.comment?`<div style="font-size:13px;color:#0f0f0f;margin-top:6px;line-height:1.6">${p.comment}</div>`:''}
+        ${p.bottlenecks&&p.bottlenecks.filter(b=>b).length?`<div class="r-block">Blockers: ${p.bottlenecks.filter(b=>b).join(' · ')}</div>`:''}
+      </div>`).join('')}
+
+    ${allBlocked.length?`
+    <h2>Key blockers requiring attention</h2>
+    <div style="background:#FAEEDA;border-radius:8px;padding:1rem;margin-bottom:1rem">
+      ${allBlocked.map(p=>`<div style="margin-bottom:.75rem"><strong style="font-size:13px;color:#633806">${p.name}</strong>${p.bottlenecks.filter(b=>b).map(b=>`<div style="font-size:12px;color:#854F0B;margin-top:3px">· ${b}</div>`).join('')}</div>`).join('')}
+    </div>`:''}
+
+    <div class="r-footer">
+      <span>UBA Group — Data Science Division, Mozambique</span>
+      <span>Generated ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</span>
+    </div>
+  </div>`;
+}
+
+function printReport(){
+  renderReport();
+  setTimeout(()=>window.print(),300);
+}
+
+document.getElementById('modal-overlay').addEventListener('click',function(e){if(e.target===this)closeModal()});
+</script>
+</body>
+</html>
