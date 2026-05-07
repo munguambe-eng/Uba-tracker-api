@@ -13,10 +13,19 @@ router.post('/register', async (req, res) => {
     return res.status(400).json({ error: 'Email, password and name are required' });
   }
 
-  const domain = email.split('@')[1];
-  if (domain !== ALLOWED_DOMAIN) {
-    return res.status(403).json({ error: `Only @${ALLOWED_DOMAIN} email addresses are allowed` });
-  }
+  if (typeof email !== 'string' || !email.includes('@')) {
+  return res.status(400).json({
+    error: 'Invalid email format'
+  });
+}
+
+const domain = email.split('@')[1]?.toLowerCase();
+
+if (domain !== ALLOWED_DOMAIN.toLowerCase()) {
+  return res.status(403).json({
+    error: `Only @${ALLOWED_DOMAIN} email addresses are allowed`
+  });
+}
 
   if (password.length < 6) {
     return res.status(400).json({ error: 'Password must be at least 6 characters' });
