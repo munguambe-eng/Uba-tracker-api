@@ -19,16 +19,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type','Authorization']
 }));
 app.options('*', cors());
-
-// Raw body for file uploads
-app.use('/upload', (req, res, next) => {
-  if (req.method === 'POST') return next();
-  express.json()(req, res, next);
-});
-app.use((req, res, next) => {
-  if (req.path === '/upload' && req.method === 'POST') return next();
-  express.json()(req, res, next);
-});
+app.use(express.json());
 
 app.get('/', (req, res) => {
   res.json({ status: 'ok', app: 'UBA Tracker API', version: '2.0.0' });
